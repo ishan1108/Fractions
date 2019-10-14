@@ -22,13 +22,20 @@ public:
     Fraction operator-(const Fraction& fraction) const;
     Fraction operator*(const Fraction& fraction) const;
     Fraction operator/(const Fraction& fraction) const;
+    Fraction operator+=(const Fraction& fraction);
+    Fraction operator-=(const Fraction& fraction);
+    Fraction operator*=(const Fraction& fraction);
+    Fraction operator/=(const Fraction& fraction);
+    Fraction operator+(const int& x) const;
+    Fraction operator-(const int& x) const;
+    Fraction operator*(const int& x) const;
+    Fraction operator/(const int& x) const;
     bool operator>(const Fraction& fraction) const;
     bool operator<(const Fraction& fraction) const;
     bool operator>=(const Fraction& fraction) const;
     bool operator<=(const Fraction& fraction) const;
     bool operator==(const Fraction& fraction) const;
     bool operator!=(const Fraction& fraction) const;
-
     friend std::ostream& operator<<(std::ostream& os, Fraction& fraction)
     {
         printOutput(os, fraction);
@@ -44,8 +51,8 @@ private:
     int greatestCommonDivider(int x, int y) const ;
     int leastCommonMultiple(int& x, int& y) const;
     Fraction reduce(const Fraction& fraction) const;
-    void isValidFraction(Fraction& f2) const;
     static void printOutput(std::ostream& os, const Fraction& fraction);
+    Fraction setFraction(Fraction& fraction) const;
 };
 
 

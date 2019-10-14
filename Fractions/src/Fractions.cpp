@@ -4,12 +4,14 @@
 
 #include "Fractions.h"
 
-//-----------------------------------------------------------------------------//
+//-----------------------------------------------------------------------//
 // Constructor
-//-----------------------------------------------------------------------------//
+//-----------------------------------------------------------------------//
 
+// Default Constructor
 Fraction::Fraction() {}
 
+// Constructor with numerator and denominator
 Fraction::Fraction(int num, int deno)
 {
     if(deno == 0)
@@ -17,19 +19,30 @@ Fraction::Fraction(int num, int deno)
         std::cout << "Please enter a valid fraction" << std::endl;
         return;
     }
-    setNumerator(num);
-    setDenominator(deno);
+    // If denominator is less than zero, set the numerator as negative
+    // and denominator as positive.
+    if(deno < 0)
+    {
+        setNumerator(-num);
+        setDenominator(-deno);
+    }
+    else
+    {
+        setNumerator(num);
+        setDenominator(deno);
+    }
 
 }
 
+// Default destructor
 Fraction::~Fraction()
 {
 
 }
 
-//-----------------------------------------------------------------------------//
+//-----------------------------------------------------------------------//
 // Getters and Setters
-//-----------------------------------------------------------------------------//
+//-----------------------------------------------------------------------//
 
 int Fraction::getNumerator() const
 {
@@ -51,104 +64,165 @@ void Fraction::setDenominator(int denominator)
     Fraction::denominator = denominator;
 }
 
-//-----------------------------------------------------------------------------//
+//-----------------------------------------------------------------------//
 // Operations
-//-----------------------------------------------------------------------------//
+//-----------------------------------------------------------------------//
 
+//Addition---------------------------------------------------------------//
 Fraction Fraction::operator+(const Fraction& fraction) const
 {
     Fraction result(getNumerator() * fraction.getDenominator()
                     + fraction.getNumerator()* getDenominator(),
                     getDenominator() * fraction.getDenominator());
-    isValidFraction(result);
-    result = reduce(result);
+    result = setFraction(result);
     return result;
 }
 
+Fraction Fraction::operator+(const int &x) const
+{
+    Fraction temp(x,1);
+    return *this + temp;
+}
+
+Fraction Fraction::operator+=(const Fraction &fraction)
+{
+    *this = *this + fraction;
+    return *this;
+}
+
+//Subtraction------------------------------------------------------------//
 Fraction Fraction::operator-(const Fraction& fraction) const
 {
     Fraction result(getNumerator() * fraction.getDenominator()
                     - fraction.getNumerator()* getDenominator(),
                     getDenominator() * fraction.getDenominator());
-    isValidFraction(result);
-    result = reduce(result);
+    result = setFraction(result);
     return result;
 }
 
+Fraction Fraction::operator-(const int &x) const
+{
+    Fraction temp(x,1);
+    return *this - temp;
+}
+
+Fraction Fraction::operator-=(const Fraction &fraction)
+{
+    *this = *this - fraction;
+    return *this;
+}
+
+//Multiplication----------------------------------------------------------//
 Fraction Fraction::operator*(const Fraction& fraction) const
 {
     Fraction result(getNumerator() * fraction.getNumerator(),
                     getDenominator() * fraction.getDenominator());
-    isValidFraction(result);
-    result = reduce(result);
+    result = setFraction(result);
     return result;
 }
 
-Fraction Fraction::operator/(const Fraction &fraction) const {
+Fraction Fraction::operator*(const int &x) const
+{
+    Fraction temp(x,1);
+    return *this * temp;
+}
+
+Fraction Fraction::operator*=(const Fraction &fraction)
+{
+    *this = *this * fraction;
+    return *this;
+}
+
+//Division----------------------------------------------------------------//
+Fraction Fraction::operator/(const Fraction &fraction) const
+{
     Fraction result(getNumerator() * fraction.getDenominator(),
                     getDenominator() * fraction.getNumerator());
-    isValidFraction(result);
-    result = reduce(result);
+    result = setFraction(result);
     return result;
 }
 
-bool Fraction::operator>(const Fraction &fraction) const {
-    int deno1 = getDenominator();
-    int deno2 = fraction.getDenominator();
-    int lcm = leastCommonMultiple(deno1, deno2);
-    return this->getNumerator()*lcm > fraction.getNumerator()*lcm;
+Fraction Fraction::operator/(const int &x) const {
+    Fraction temp(x,1);
+    return *this / temp;
 }
 
-bool Fraction::operator<(const Fraction &fraction) const {
-    int deno1 = getDenominator();
-    int deno2 = fraction.getDenominator();
-    int lcm = leastCommonMultiple(deno1, deno2);
-    return this->getNumerator()*lcm < fraction.getNumerator()*lcm;
-}
-
-bool Fraction::operator>=(const Fraction &fraction) const {
-    int deno1 = getDenominator();
-    int deno2 = fraction.getDenominator();
-    int lcm = leastCommonMultiple(deno1, deno2);
-    return this->getNumerator()*lcm >= fraction.getNumerator()*lcm;
-}
-
-bool Fraction::operator<=(const Fraction &fraction) const {
-    int deno1 = getDenominator();
-    int deno2 = fraction.getDenominator();
-    int lcm = leastCommonMultiple(deno1, deno2);
-    return this->getNumerator()*lcm <= fraction.getNumerator()*lcm;
-}
-
-bool Fraction::operator==(const Fraction &fraction) const {
-    int deno1 = getDenominator();
-    int deno2 = fraction.getDenominator();
-    int lcm = leastCommonMultiple(deno1, deno2);
-    return this->getNumerator()*lcm == fraction.getNumerator()*lcm;
-}
-
-bool Fraction::operator!=(const Fraction &fraction) const {
-    int deno1 = getDenominator();
-    int deno2 = fraction.getDenominator();
-    int lcm = leastCommonMultiple(deno1, deno2);
-    return this->getNumerator()*lcm != fraction.getNumerator()*lcm;
-}
-
-//-----------------------------------------------------------------------------//
-// Helper Functions
-//-----------------------------------------------------------------------------//
-
-int Fraction::greatestCommonDivider(int x, int y) const
+Fraction Fraction::operator/=(const Fraction &fraction)
 {
-    if(x==0)
-        return y;
-    return greatestCommonDivider(y % x, x);
+    *this = *this / fraction;
+    return *this;
 }
 
-int Fraction::leastCommonMultiple(int& x, int& y) const
+//Equality----------------------------------------------------------------//
+bool Fraction::operator>(const Fraction &fraction) const
 {
-    return (x * y) / greatestCommonDivider(x, y);
+    int deno1 = getDenominator();
+    int deno2 = fraction.getDenominator();
+    int lcm = leastCommonMultiple(deno1, deno2);
+    Fraction left = setFraction(const_cast<Fraction &>(*this));
+    Fraction right = setFraction(const_cast<Fraction &>(fraction));
+    return left.getNumerator()*(lcm/left.getDenominator()) >
+            right.getNumerator()*(lcm/right.getDenominator());
 }
+
+bool Fraction::operator<(const Fraction &fraction) const
+{
+    int deno1 = getDenominator();
+    int deno2 = fraction.getDenominator();
+    int lcm = leastCommonMultiple(deno1, deno2);
+    Fraction left = setFraction(const_cast<Fraction &>(*this));
+    Fraction right = setFraction(const_cast<Fraction &>(fraction));
+    return left.getNumerator()*(lcm/left.getDenominator()) <
+           right.getNumerator()*(lcm/right.getDenominator());
+}
+
+bool Fraction::operator>=(const Fraction &fraction) const
+{
+    int deno1 = getDenominator();
+    int deno2 = fraction.getDenominator();
+    int lcm = leastCommonMultiple(deno1, deno2);
+    Fraction left = setFraction(const_cast<Fraction &>(*this));
+    Fraction right = setFraction(const_cast<Fraction &>(fraction));
+    return left.getNumerator()*(lcm/left.getDenominator()) >=
+           right.getNumerator()*(lcm/right.getDenominator());
+}
+
+bool Fraction::operator<=(const Fraction &fraction) const
+{
+    int deno1 = getDenominator();
+    int deno2 = fraction.getDenominator();
+    int lcm = leastCommonMultiple(deno1, deno2);
+    Fraction left = setFraction(const_cast<Fraction &>(*this));
+    Fraction right = setFraction(const_cast<Fraction &>(fraction));
+    return left.getNumerator()*(lcm/left.getDenominator()) <=
+           right.getNumerator()*(lcm/right.getDenominator());
+}
+
+bool Fraction::operator==(const Fraction &fraction) const
+{
+    int deno1 = getDenominator();
+    int deno2 = fraction.getDenominator();
+    int lcm = leastCommonMultiple(deno1, deno2);
+    Fraction left = setFraction(const_cast<Fraction &>(*this));
+    Fraction right = setFraction(const_cast<Fraction &>(fraction));
+    return left.getNumerator()*(lcm/left.getDenominator()) ==
+           right.getNumerator()*(lcm/right.getDenominator());
+}
+
+bool Fraction::operator!=(const Fraction &fraction) const
+{
+    int deno1 = getDenominator();
+    int deno2 = fraction.getDenominator();
+    int lcm = leastCommonMultiple(deno1, deno2);
+    Fraction left = setFraction(const_cast<Fraction &>(*this));
+    Fraction right = setFraction(const_cast<Fraction &>(fraction));
+    return left.getNumerator()*(lcm/left.getDenominator()) !=
+           right.getNumerator()*(lcm/right.getDenominator());
+}
+
+//-----------------------------------------------------------------------//
+// Private Helper Functions
+//-----------------------------------------------------------------------//
 
 Fraction Fraction::reduce(const Fraction& fraction) const
 {
@@ -160,13 +234,32 @@ Fraction Fraction::reduce(const Fraction& fraction) const
     return reduce(Fraction(num/gcd, deno/gcd));
 }
 
-void Fraction::isValidFraction(Fraction &f2) const
+Fraction Fraction::setFraction(Fraction &fraction) const
 {
-    if(getDenominator() == 0 || f2.getDenominator() == 0)
+    if(getDenominator() == 0 || fraction.getDenominator() == 0)
     {
         std::cout << "Invalid Fraction" << std::endl;
         exit(-1);
     }
+    if(getDenominator() < 0)
+    {
+        return reduce(Fraction(-fraction.getNumerator(), -fraction.getDenominator()));
+    }
+    return reduce(Fraction(-fraction.getNumerator(), -fraction.getDenominator()));
+}
+
+int Fraction::leastCommonMultiple(int& x, int& y) const
+{
+    return (x * y) / greatestCommonDivider(x, y);
+}
+
+int Fraction::greatestCommonDivider(int x, int y) const
+{
+    if(x < 0) x = -x;
+    if(y < 0) y = -y;
+    if(x==0)
+        return y;
+    return greatestCommonDivider(y % x, x);
 }
 
 void Fraction::printOutput(std::ostream &os, const Fraction &fraction)
@@ -186,3 +279,5 @@ void Fraction::printOutput(std::ostream &os, const Fraction &fraction)
     else
         os << fraction.getNumerator() << "/" << fraction.getDenominator();
 }
+
+//-----------------------------------------------------------------------//
